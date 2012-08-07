@@ -1,6 +1,6 @@
 //
 // Copyright (C) Remik Ziemlinski
-// 
+//
 // MEL Command: importvtk
 //
 // $Id: importvtk.cpp,v 1.4 2008/05/26 13:06:48 rsz Exp $
@@ -20,7 +20,7 @@ MStatus importvtk::doIt( const MArgList& args)
 //
 //	Return Value:
 //		MS::kSuccess - command succeeded
-//		MS::kFailure - command failed (returning this value will cause the 
+//		MS::kFailure - command failed (returning this value will cause the
 //                     MEL script that is being run to terminate unless the
 //                     error is caught using a "catch" statement.
 //
@@ -32,7 +32,7 @@ MStatus importvtk::doIt( const MArgList& args)
 		return stat;
 
 	// Typically, the doIt() method only collects the infomation required
-	// to do/undo the action and then stores it in class members.  The 
+	// to do/undo the action and then stores it in class members.  The
 	// redo method is then called to do the actuall work.  This prevents
 	// code duplication.
 	//
@@ -42,7 +42,7 @@ MStatus importvtk::doIt( const MArgList& args)
 MStatus importvtk::redoIt()
 //
 //	Description:
-//		implements redo for the MEL importvtk command. 
+//		implements redo for the MEL importvtk command.
 //
 //		This method is called when the user has undone a command of this type
 //		and then redoes it.  No arguments are passed in as all of the necessary
@@ -111,48 +111,48 @@ MStatus importvtk::doImport()
 		switch (datasetType)
 			{
 			case VTK_STRUCTURED_GRID:
-				if (debuglevel) 
+				if (debuglevel)
 					MGlobal::displayInfo( "\tImporting VTK_STRUCTURED_GRID.\n" );
-				
+
 				status = vtkStructuredGridToParticles(sgrid);
 				break;
 			case VTK_STRUCTURED_POINTS: // Wrapper for vtkImageData.
-				if (debuglevel) 
+				if (debuglevel)
 					MGlobal::displayInfo( "\tImporting VTK_STRUCTURED_POINTS.\n" );
-				
+
 				status = vtkStructuredPointsToFluid(spts);
 				break;
-			case VTK_POLY_DATA:			
-				if (debuglevel) 
+			case VTK_POLY_DATA:
+				if (debuglevel)
 					MGlobal::displayInfo( "\tImporting VTK_POLY_DATA.\n" );
-				
+
 				status = vtkPolyDataImport(poly);
 				break;
 			case VTK_RECTILINEAR_GRID:
 			case VTK_UNSTRUCTURED_GRID:
-			default:			
+			default:
 				MString msg = "importvtk: Object type currently unsupported.";
-				displayError( msg );	
-				status = MS::kFailure;		
-				break;			
+				displayError( msg );
+				status = MS::kFailure;
+				break;
 			}
 	}
 
-	// Since this class is derived off of MPxCommand, you can use the 
+	// Since this class is derived off of MPxCommand, you can use the
 	// inherited methods to return values and set error messages
 	//
 	setResult( status );
-	
+
 	return status;
 }
 
 MStatus importvtk::undoIt()
 //
 //	Description:
-//		implements undo for the MEL importvtk command.  
+//		implements undo for the MEL importvtk command.
 //
-//		This method is called to undo a previous command of this type.  The 
-//		system should be returned to the exact state that it was it previous 
+//		This method is called to undo a previous command of this type.  The
+//		system should be returned to the exact state that it was it previous
 //		to this command being executed.  That includes the selection state.
 //
 //	Return Value:
@@ -173,7 +173,7 @@ void* importvtk::creator()
 //
 //	Description:
 //		this method exists to give Maya a way to create new objects
-//      of this type. 
+//      of this type.
 //
 //	Return Value:
 //		a new object of this type
@@ -200,9 +200,9 @@ importvtk::~importvtk()
 bool importvtk::isUndoable() const
 //
 //	Description:
-//		this method tells Maya this command is undoable.  It is added to the 
-//		undo queue if it is.  
-//      This will not support undo to avoid caching large amounts of 
+//		this method tells Maya this command is undoable.  It is added to the
+//		undo queue if it is.
+//      This will not support undo to avoid caching large amounts of
 //      extra particle memory.
 //
 //	Return Value:
@@ -215,65 +215,65 @@ bool importvtk::isUndoable() const
 MSyntax importvtk::newSyntax()
 {
     MSyntax syntax;
-		
+
     syntax.addFlag(kReferenceFlag, kReferenceFlagLong, MSyntax::kString);
     syntax.addFlag(kFilenameFlag, kFilenameFlagLong, MSyntax::kString);
     syntax.addFlag(kNameFlag, kNameFlagLong, MSyntax::kString);
-    syntax.addFlag(kScalarsAttFlag, kScalarsAttFlagLong, MSyntax::kString); 
-    syntax.addFlag(kDebugFlag, kDebugFlagLong, MSyntax::kLong); 
-    syntax.addFlag(kVersionFlag, kVersionFlagLong, MSyntax::kNoArg); 
+    syntax.addFlag(kScalarsAttFlag, kScalarsAttFlagLong, MSyntax::kString);
+    syntax.addFlag(kDebugFlag, kDebugFlagLong, MSyntax::kLong);
+    syntax.addFlag(kVersionFlag, kVersionFlagLong, MSyntax::kNoArg);
     syntax.addFlag(kNormalsFlag, kNormalsFlagLong, MSyntax::kNoArg);
- 
+
     return syntax;
 }
 MStatus importvtk::parseArgs( const MArgList& args )
-{    
-	MStatus status = MS::kSuccess;	
+{
+	MStatus status = MS::kSuccess;
 	int displayversion = 0;
 
 	//MArgDatabase results were screwy, so doing bruteforce parsing.
 	for ( unsigned int i = 0; i < args.length(); i++ )
 		{
 			if ( ( MString( kFilenameFlag ) == args.asString( i, &status )
-						 && MS::kSuccess == status ) || 
+						 && MS::kSuccess == status ) ||
 					 ( MString( kFilenameFlagLong ) == args.asString( i, &status )
 						 && MS::kSuccess == status ) )
 				{
 					filename = args.asString( ++i, &status );
 				}	else if ( ( MString( kNameFlag ) == args.asString( i, &status )
-										 && MS::kSuccess == status ) || 
+										 && MS::kSuccess == status ) ||
 									 ( MString( kNameFlagLong ) == args.asString( i, &status )
 										 && MS::kSuccess == status ) )
 				{
 					name = args.asString( ++i, &status );
 				} else if ( ( MString( kScalarsAttFlag ) == args.asString( i, &status )
-										 && MS::kSuccess == status ) || 
+										 && MS::kSuccess == status ) ||
 									 ( MString( kScalarsAttFlagLong ) == args.asString( i, &status )
 										 && MS::kSuccess == status ) )
 				{
 					scalarsAttributeName = args.asString( ++i, &status );
 				} else if ( ( MString( kDebugFlag ) == args.asString( i, &status )
-										 && MS::kSuccess == status ) || 
+										 && MS::kSuccess == status ) ||
 									 ( MString( kDebugFlagLong ) == args.asString( i, &status )
 										 && MS::kSuccess == status ) )
 				{
 					debuglevel = args.asInt( ++i, &status );
 				} else if ( ( MString( kVersionFlag ) == args.asString( i, &status )
-										 && MS::kSuccess == status ) || 
+										 && MS::kSuccess == status ) ||
 									 ( MString( kVersionFlagLong ) == args.asString( i, &status )
 										 && MS::kSuccess == status ) )
 				{
 					MString msg = "importvtk version ";
-					displayInfo(msg + VERSION);		
+					displayInfo(msg + VERSION);
 					displayversion = 1;
 				} else if ( ( MString( kNormalsFlag ) == args.asString( i, &status )
-											&& MS::kSuccess == status ) || 
+											&& MS::kSuccess == status ) ||
 										( MString( kNormalsFlagLong ) == args.asString( i, &status )
 											&& MS::kSuccess == status ) )
 				{
 					importnormals = 1;
 				} else if ( ( MString( kReferenceFlag ) == args.asString( i, &status )
-											&& MS::kSuccess == status ) || 
+											&& MS::kSuccess == status ) ||
 										( MString( kReferenceFlagLong ) == args.asString( i, &status )
 											&& MS::kSuccess == status ) )
 				{
@@ -313,9 +313,9 @@ MStatus importvtk::GetReferenceStringPointer(const MString & text, void** ptr, M
 {
   int n;
 	char buf[256];
-  
+
   n = sscanf(text.asChar(), "_%lx_p_%s", (long*)ptr, buf);
-  
+
   if (n != 2) {
 		*ptr = NULL;
 		return MS::kFailure;
@@ -343,11 +343,11 @@ MStatus importvtk::vtkStructuredGridToParticles(vtkStructuredGrid* g)
 		{
 			// Should only populate the first 3 elements.
 			// Can't use points memory directly because MPoint is a 4tuple, not 3tuple.
-			pts->GetPoint(i, &pts4[i][0]);			
+			pts->GetPoint(i, &pts4[i][0]);
 		}
-	
+
 	if (scalarsAttributeName != "")
-		{	
+		{
 			// Access the scalar memory directly instead of copying values to new array.
 			vtkDataArray *vtkscalars = ((vtkDataSet*)g)->GetPointData()->GetScalars();
 			switch (vtkscalars->GetDataType())
@@ -375,10 +375,10 @@ MStatus importvtk::vtkStructuredGridToParticles(vtkStructuredGrid* g)
 MStatus importvtk::createParticles(MPointArray& pa, MDoubleArray* scalars)
 {
  	MStatus stat = MS::kSuccess;
-	
+
 	/* Need to use dummy particle system to create an MObject, and then have
-     another particle system do the emit. I got burned using a single 
-     particle system for everything resulting in no particles. 
+     another particle system do the emit. I got burned using a single
+     particle system for everything resulting in no particles.
 		 I realized this in the plugin example "devkit/particleSystemInfoCmd".
 	*/
 	MFnParticleSystem dummy;
@@ -398,14 +398,14 @@ MStatus importvtk::createParticles(MPointArray& pa, MDoubleArray* scalars)
 	MFnDoubleArrayData dData;
 	MObject dObj = dData.create(*scalars, &stat);
 	CHECKRESULT(stat,"MFnDoubleArrayData::create() failed!");
-	
+
 	// Don't test stat, because stat!= success if test returns false.
 	bool hasattr;
 	MObject attr;
 
 	// Create a new attribute.
-	MFnTypedAttribute fnattr;	
-	attr = fnattr.create(scalarsAttributeName, 
+	MFnTypedAttribute fnattr;
+	attr = fnattr.create(scalarsAttributeName,
 											 scalarsAttributeName.substring(0,2),
 											 MFnData::kDoubleArray,
 											 dObj, &stat);
@@ -416,7 +416,7 @@ MStatus importvtk::createParticles(MPointArray& pa, MDoubleArray* scalars)
 
 	hasattr = ps.hasAttribute(scalarsAttributeName, &stat);
 	CHECKRESULT(stat,"MFnParticleSystem doesn't have new attribute!");
-	
+
 	ps.setPerParticleAttribute(scalarsAttributeName, *scalars, &stat);
 	CHECKRESULT(stat,"MFnParticleSystem::setPerParticleAttribute() failed!");
 
@@ -475,7 +475,7 @@ MStatus importvtk::vtkStructuredPointsToFluid(vtkStructuredPoints* spts)
 			dsrc = ((vtkDoubleArray*)vtkscalars)->GetPointer(0);
 			for(unsigned int i=0; i<npts; ++i)
 				dest[i] = (float)dsrc[i];
-			
+
 			break;
 		case VTK_FLOAT:
 			fsrc = ((vtkFloatArray*)vtkscalars)->GetPointer(0);
@@ -489,8 +489,8 @@ MStatus importvtk::vtkStructuredPointsToFluid(vtkStructuredPoints* spts)
 		}
 
 	stat = fn.updateGrid();
-	CHECKRESULT(stat,"MFnFluid::updateGrid() failed!");			
-				
+	CHECKRESULT(stat,"MFnFluid::updateGrid() failed!");
+
 	return stat;
 }
 /*
@@ -513,14 +513,14 @@ MStatus importvtk::vtkPolyDataImport(vtkPolyData* poly)
 		{
 			if (debuglevel) {
 				char buf[255];
-				sprintf(buf, "vtkPolyData has %d polys, %d strips\n", 
+				sprintf(buf, "vtkPolyData has %d polys, %d strips\n",
 								poly->GetNumberOfPolys(), poly->GetNumberOfStrips());
 
 				MString msg(buf);
 				displayInfo(msg);
 			}
 
-			stat = vtkPolyDataToMesh(poly);			
+			stat = vtkPolyDataToMesh(poly);
 			CHECKRESULT(stat,"vtkPolyDataToMesh() failed!");
 		}
 
@@ -532,7 +532,7 @@ MStatus importvtk::vtkPolyDataImport(vtkPolyData* poly)
 /*
 	Only imports vertices (colormapped if scalars present),
 	normals and texture coords.
-	Todo: 
+	Todo:
 	- Cells (data,texture,normals).
  */
 MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
@@ -558,17 +558,17 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	int *polyconnects = new int[cells->GetNumberOfConnectivityEntries()];
 	pts4 = new double[npts][4];
 	vtkIdTypeArray* vtkcelldata = cells->GetData();
-	int *celldata = vtkcelldata->GetPointer(0);
+	int *celldata = (int*)vtkcelldata->GetPointer(0);
 	unsigned int i, imax;
 
 	for(i=0; i < npts; ++i)
 		{
 			// Should only populate the first 3 elements.
 			// Can't use points memory directly because MPoint is a 4tuple, not 3tuple.
-			pts->GetPoint(i, &pts4[i][0]);			
+			pts->GetPoint(i, &pts4[i][0]);
 		}
 
-	if (debuglevel) 
+	if (debuglevel)
 		MGlobal::displayInfo( "\tProcessed points.\n" );
 
 	imax = vtkcelldata->GetNumberOfTuples();
@@ -580,14 +580,14 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	for(i=0; i < imax;)
 		{
 			polycounts[k++] = celldata[i++];
-			
+
 			for(unsigned int c=0; c < polycounts[k-1]; ++i, ++c, ++m)
 				{
 					polyconnects[m] = celldata[i];
-				}			
+				}
 		}
-	
-	if (debuglevel) 
+
+	if (debuglevel)
 		MGlobal::displayInfo( "\tProcessed vertex connectivity.\n" );
 
 	vtkDataArray* vtkuv = ((vtkDataSet*)poly)->GetPointData()->GetTCoords();
@@ -598,7 +598,7 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	// Not every mesh will have texture coords.
 	if (vtkuv != NULL)
 		{
-			if (debuglevel) 
+			if (debuglevel)
 				MGlobal::displayInfo( "\tProcessing texture coords.\n" );
 
 			nuvs = npts;
@@ -611,7 +611,7 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 					vs[i] = (float)vtkuv->GetComponent(i, 1);
 				}
 
-			if (debuglevel) 
+			if (debuglevel)
 				MGlobal::displayInfo( "\t\tDone.\n" );
 		}
 
@@ -622,7 +622,7 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	MIntArray polycountarray(polycounts, k);
 	MIntArray polyconnectsarray(polyconnects, m);
 
-	if (debuglevel) 
+	if (debuglevel)
 		MGlobal::displayInfo( "\tCreating Mesh object.\n" );
 
 	MFnMesh fn;
@@ -634,23 +634,23 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 													uArray, vArray,
 													MObject::kNullObj,
 													&stat);
-	CHECKRESULT(stat,"MFnMesh::create() failed!");			
-	
-	// We must explicitly map the texture coords to mesh vertices. 
+	CHECKRESULT(stat,"MFnMesh::create() failed!");
+
+	// We must explicitly map the texture coords to mesh vertices.
 	if (nuvs > 0)	{
-		if (debuglevel) 
+		if (debuglevel)
 			MGlobal::displayInfo( "\tAssigning texture coords.\n" );
 
-		MString uvSet("map1"); 
+		MString uvSet("map1");
 		stat = fn.assignUVs(polycountarray, polyconnectsarray, &uvSet);
-		CHECKRESULT(stat,"MFnMesh::assignUVs() failed!");			
+		CHECKRESULT(stat,"MFnMesh::assignUVs() failed!");
 	}
 
 	delete [] pts4;
 	if (us != NULL) delete [] us;
 	if (vs != NULL)	delete [] vs;
 
-	// Normals ///////////////////////////////////////////////////	
+	// Normals ///////////////////////////////////////////////////
 	vtkDataArray *vtknormals = ((vtkDataSet*)poly)->GetPointData()->GetNormals();
 
 	if ((vtknormals != NULL) && importnormals){
@@ -662,7 +662,7 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 		}
 
 		stat = fn.unlockVertexNormals(polyconnectsarray);
-		CHECKRESULT(stat,"MFnMesh::unlockVertexNormals() failed!");			
+		CHECKRESULT(stat,"MFnMesh::unlockVertexNormals() failed!");
 
 		double tmp[3];
 		double (*normals)[3] = new double[m][3];
@@ -670,16 +670,16 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 			// polyconnects[i] gives us the point id.
 			// VTK uses the notion of shared vertex normals like Maya.
 			// Todo: Support per polygon (exclusive) normals with command options or face normals.
-			vtknormals->GetTuple(polyconnects[i], normals[i]);			
+			vtknormals->GetTuple(polyconnects[i], normals[i]);
 		}
 
 		MVectorArray vecarray(normals, m);
 		stat = fn.setVertexNormals(vecarray, polyconnectsarray, MSpace::kWorld);
 		CHECKRESULT(stat,"MFnMesh::setVertexNormals() failed!");
- 
+
 		delete [] normals;
-		
-		if (debuglevel) 
+
+		if (debuglevel)
 			MGlobal::displayInfo( "\t\tDone.\n" );
 	}
 
@@ -689,7 +689,7 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	// Scalars ///////////////////////////////////////////////////
 	// todo: celldata support.
 	vtkDataArray *vtkscalars = ((vtkDataSet*)poly)->GetPointData()->GetScalars();
-	
+
 	// Do not proceed if scalars aren't present.
 	if (vtkscalars == NULL)
 		return stat;
@@ -709,11 +709,11 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 	lut->SetRange(vtkscalars->GetRange());
 
 	// MColorArray needs an array of 4-tuples, rgba.
-  double (*colors4)[4] = new double[npts][4];	
+  double (*colors4)[4] = new double[npts][4];
 	int *indices = new int[npts];
 	double scalar;
 
-	if (debuglevel) 
+	if (debuglevel)
 		MGlobal::displayInfo( "\tProcessing scalars.\n" );
 
 	for(i=0; i < npts; ++i)
@@ -722,9 +722,9 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 			scalar = vtkscalars->GetTuple1(i);
 			lut->GetColor(scalar, &colors4[i][0]);
 			colors4[i][3] = lut->GetOpacity(scalar);
-		}	
-	
-	if (debuglevel) 
+		}
+
+	if (debuglevel)
 		MGlobal::displayInfo( "\tAssigning vertex colors.\n" );
 
 	// Assign to the default color set.
@@ -733,15 +733,15 @@ MStatus importvtk::vtkPolyDataToMesh(vtkPolyData* poly)
 
 	stat = fn.setVertexColors(mcolors,
 														mindices,
-														(MDGModifier*)NULL);									 
-	CHECKRESULT(stat,"MFnMesh::setVertexColors() failed!");			
-	
+														(MDGModifier*)NULL);
+	CHECKRESULT(stat,"MFnMesh::setVertexColors() failed!");
+
 	delete [] colors4;
 	delete [] indices;
 
 	// todo: if cell setFaceColors
 
-	return stat;	
+	return stat;
 }
 MStatus importvtk::vtkPolyDataToLines(vtkPolyData* poly)
 {
@@ -751,7 +751,7 @@ MStatus importvtk::vtkPolyDataToLines(vtkPolyData* poly)
 		return stat;
 
 	vtkCellArray *cells = poly->GetLines();
-	
+
 	if (cells == NULL)
 		return stat;
 
@@ -772,11 +772,11 @@ MStatus importvtk::vtkPolyDataToLines(vtkPolyData* poly)
 					poly->GetPoint(celldata[j+k+1], &pts4[k][0]);
 					knots[k] = 1;
 				}
-			
+
 			j += npts + 1 ;
 
 			MFnNurbsCurve fn;
-			MObject obj = fn.create(MPointArray(pts4, npts), 
+			MObject obj = fn.create(MPointArray(pts4, npts),
 															MDoubleArray(knots, npts),
 															1,
 															MFnNurbsCurve::kOpen,
@@ -784,8 +784,8 @@ MStatus importvtk::vtkPolyDataToLines(vtkPolyData* poly)
 															false,
 															MObject::kNullObj,
 															&stat);
-			CHECKRESULT(stat,"MFnNurbsCurve::create() failed!");			
-			
+			CHECKRESULT(stat,"MFnNurbsCurve::create() failed!");
+
 			delete [] pts4;
 			delete [] knots;
 		}
