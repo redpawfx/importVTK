@@ -1,0 +1,22 @@
+$ Id: $
+
+See html/index.htm.
+
+============================================
+Tips (to be put in webpage)
+- For Windows, if the importvtk.mll plugin load fails with the message
+  "Unable to find plugin module ...etc..."
+  then you may also need to copy your VTK DLL files to Maya's bin/ directory.
+
+============================================
+Developer Notes
+
+# Update webpage.
+scp html/index.htm rsz@shell.sf.net:/home/groups/i/im/importvtk/htdocs
+
+# Update code.
+maketar 1.1.0
+cd /tmp
+ftp upload.sourceforge.net
+cd incoming
+

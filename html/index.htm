@@ -1,0 +1,602 @@
+<html
+<head>
+<title>
+importvtk : VTK Import Plugin for Maya®
+</title>
+</head>
+<body>
+<p align=right>
+<a href="http://sourceforge.net">
+<img src="http://sourceforge.net/sflogo.php?group_id=174746&amp;type=2" 
+width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+</p>
+<p>
+<font SIZE="+4">
+importvtk 1.1.0 : VTK Import Plugin for Maya® 
+</font>
+
+</p>
+
+<p>
+
+<ol>
+
+<li>
+<a href="#overview">
+Overview</a>
+</li>
+
+<li>
+<a href="#news">
+News</a>
+</li>
+
+<li>
+<a href="#download">
+Download</a>
+</li>
+
+<li>
+<a href="#installation">
+Installation</a>
+</li>
+
+<li>
+<a href="#usage">
+Usage</a>
+</li>
+
+<li>
+<a href="#examples">
+Examples</a>
+</li>
+
+<li>
+<a href="#tips">
+Tips</a>
+</li>
+
+<li>
+<a href="#future">
+Future Work</a>
+</li>
+
+<li>
+<a href="#ack">
+Acknowledgements</a>
+</li>
+
+</ol>
+
+</p>
+
+
+<hr>
+</p>
+
+
+<h2>
+<a name="overview">
+1. Overview
+</a>
+</h2>
+<p>
+importvtk is a Maya plugin written in C++ that provides MEL and Python commands to import VTK files (binary or ASCII) containing a vtkDataSet or a live (in memory) VTK Python object. Other generic 3D converters either supported ASCII files only (inefficient for large datasets) or lacked certain contexts such as scalars, vectors, tensors and lookup tables.
+<br><br>
+importvtk currently imports vtkDataSets in the following ways:
+<ul>
+<li>vtkStructuredGrid -> Particles</li>
+<li>vtkImageData -> Fluid</li>
+<li>vtkPolyData polygons -> Mesh</li>
+<li>vtkPolyData lines -> Nurbs Curves</li>
+</ul>
+I wasn't able to find such a tool on the web and I'm sure there
+are those that would need such a capability without having to learn
+the Maya C++ API.
+<br><br>
+Maya API experts may ask why the MPxFileTranslator class
+wasn't derived. This would've made it more convenient for GUI users,
+but for now this scriptable command is flexible enough with its input
+arguments, and besides, importing scientific models spanning
+hundreds of files just wouldn't be practical with a GUI.
+<br><br>
+Any ideas for a feature? Submit it <a href="http://sourceforge.net/tracker/?group_id=174746&atid=870461">here</a>. Uncovered a bug? Submit a ticket <a href="http://sourceforge.net/tracker/?group_id=174746&atid=870458">here</a>.
+<br><br>
+remikziemlinski att yahoo dot com
+</p>
+
+<p>
+<hr>
+</p>
+
+<h2>
+<a name="news">
+2. News
+</a>
+</h2>
+<p>
+<i>2008-05-26</i> Added support for live python objects and MS VCEE 9 2008.
+<br>
+<i>2008-04-28</i> Added options for normals, version, and debug messages.
+<br>
+<i>2008-04-24</i> Added UV texture and vertex normals import for polydata.
+<br>
+<i>2008-04-23</i> Updated Makefile and code for Linux and Maya 2008.
+<br>
+<i>2006-08-11</i> Project hosted by SourceForge.
+</p>
+
+<p>
+<hr>
+</p>
+
+<h2>
+<a name="download">
+3. Download
+</a>
+</h2>
+<p>
+Project files: <a href="https://sourceforge.net/project/showfiles.php?group_id=174746">importvtk-1.1.0.tar.gz</a>
+<br>
+Example VTK files: <a href="https://sourceforge.net/project/showfiles.php?group_id=174746">1.0-examples.tar.gz</a>
+<br>
+Latest development files: <a href="https://sourceforge.net/cvs/?group_id=174746">CVS instructions</a>
+
+</p>
+
+
+
+<p>
+<hr>
+</p>
+
+<h2>
+<a name="installation">
+4. Installation</a>
+</h2>
+<p>
+<h3>
+4.1 Requirements
+</h3>
+<ol>
+<li>Compiler (GCC 4.1.2 for GNU/Linux, MS Visual C++ for MS Windows)
+</li>
+<li>Maya 7+ (MEL command), Maya 8.5 (Python command)
+</li>
+<li>VTK 5+
+</li>
+</ol>
+
+<h3>
+4.2 Building with Microsoft Visual C++ Express Edition 9 2008 (VCEE2008)
+</h3>
+See <a href="http://www.cs.auckland.ac.nz/~jli023/vtk/BuildandinstallVTKbinaries.htm">this page</a>
+for an excellent recipe on how to configure VCEE2008 to build and then use VTK.
+Basically, you'll need the VTK source code to access the header files, 
+and then to compile the libraries.  
+Just so you know, the VTK Windows installer from Kitware only gives you (TCL) binaries, which aren't very useful in building this project.
+<br><br>
+The project (solution) files for building importvtk are available in the download.
+<br><br>
+After building importvtk.mll, copy it to a path listed in your MAYA_PLUG_IN_PATH environment variable.
+
+<h3>
+4.3 Building with Microsoft Visual C++ Express Edition 2005 (VCEE2005)
+</h3>
+See <a href="http://www.cs.auckland.ac.nz/~jli023/vtk/BuildandinstallVTKbinaries.htm">this page</a>
+for an excellent recipe on how to configure VCEE2005 to build and then use VTK.
+Basically, you'll need the VTK source code to access the header files, 
+and then to compile the libraries.  
+Just so you know, the VTK Windows installer from Kitware only gives you (TCL) binaries, which aren't very useful in building this project.
+<br><br>
+Next, download and setup the "Windows Platform SDK for Windows Server 2003 R2", 
+then edit its include directory in the VCEE2005 IDE, which can be done from the menu with <b>Tools | Options | Projects and Solutions | VC++ Directories | Include files</b> list. Type in a path resembling <i>C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include</i>.
+<br><br>
+You can now build it (shortcut F7).  
+<br><br>
+Copy the importvtk.mll file to a path listed in your MAYA_PLUG_IN_PATH environment variable.
+
+
+<h3>4.4 Building with GCC on GNU/Linux</h3>
+
+Edit Makefile to reference the correct header and library file paths.
+<br><br>
+Run `make` and copy the importvtk.so file to a path listed in your
+MAYA_PLUG_IN_PATH environment variable.
+
+</p>
+
+
+<p>
+<hr>
+</p>
+
+
+<h2>
+<a name="usage">
+5. Usage
+</a>
+</h2>
+
+<p>
+Within Maya's command line or script editor, load the plugin with this MEL command:
+<pre>
+    loadPlugin "importvtk";
+
+    # Or with explicit path (Windows example).
+    loadPlugin "c:/rsz/projects/maya/plugins/importvtk.mll";
+</pre>
+or with the GUI, browse to that location through the Maya menu <b>Windows | Settings/Preferences | Plugin Manager ...</b>.
+<br><br>
+You can unload the plugin with
+<pre>
+    unloadPlugin "importvtk";
+</pre>
+</p>
+<p>
+For Python, copy "importvtk.py" to a directory listed in your <tt>PYTHONPATH</tt>.  You don't want "importvtk.py" in the same directory as your "importvtk.mll" or "importvtk.so" file, because Python may complain upon import that "Error: dynamic module does not define init function (initimportvtk)" since it tries to load the DLL/SO before the python script.
+</p>
+
+<p>
+<hr>
+</p>
+
+
+<h2>
+<a name="examples">
+6. Examples
+</a>
+</h2>
+
+<p>
+Several test files are built by and ship with the project. Your own tests should reproduce the images below.
+<h3>6.1 vtkStructuredGrid to Particles</h3>
+This will import a 3D vtkStructuredGrid's points as a particle system and assign
+the scalars to the per particle opacity.
+<pre>
+    # MEL version.
+    importvtk -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-sgrid.vtk" -s "opacityPP";
+    addAttr -is true -ln "radius" -at "float" -min 0 -max 20 -dv .1 "particleShape1";
+    setAttr "particleShape1.radius" .75;
+
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-sgrid.vtk", s="opacityPP")
+    import maya
+    maya.cmds.addAttr("particleShape1", internalSet=True, ln="radius", at="float", min=0, max=20, dv=.1)
+    maya.cmds.setAttr("particleShape1.radius", .75)
+</pre>
+The images below compare what is seen in VTK and in Maya.
+<br>
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="particle1vtk.png"><img src="particle1vtk.png"></a>
+</td>
+<td>
+<a href="particle1maya.png"><img src="particle1maya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkStructuredGrid points in VTK<br>
+Opacities: Red = .1, Green =.5, Blue = .9 
+</td>
+<td align=center valign=top>
+Converted to Maya Particle System
+</td>
+</tr>
+
+</table>
+</center>
+
+<h3>6.2 vtkImageData to Fluid</h3>
+This imports a 3D vtkImageData as a fluid and assigns the scalars to the 
+fluid's density.  Note: Maya Unlimited is required for Fluid support.
+<pre>
+    # MEL version.
+    importvtk -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-img.vtk" -s "density";
+
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-img.vtk", s="density")
+</pre>
+
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="fluid1vtk.png"><img src="fluid1vtk.png"></a>
+</td>
+<td>
+<a href="fluid1maya.png"><img src="fluid1maya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkImageData points in VTK<br>
+Opacities: Red = .1, Green =.5, Blue = .9 
+</td>
+<td align=center valign=top>
+Converted to Maya Fluid
+</td>
+</tr>
+
+</table>
+</center>
+
+<h3>6.3 vtkPolyData Polygons to Mesh</h3>
+This imports a polygon mesh surface with colormapped point-based scalars.
+<pre>
+    # MEL version.
+    importvtk -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-polyspt.vtk";    
+    
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-polyspt.vtk")
+</pre>
+You'll then need to add a material, such as Blinn and enable color-per-vertex shaded display from the menu <b>Display | Polygons | Custom Polygon Display | Color in Shaded Display</b>.
+
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="polyptvtk.png"><img src="polyptvtk.png"></a>
+</td>
+<td>
+<a href="polyptmaya.png"><img src="polyptmaya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkPolyData polygon surface in VTK<br>
+Opacity and colors mapped to Z coordinates
+</td>
+<td align=center valign=top>
+Converted to Maya Mesh
+</td>
+</tr>
+
+</table>
+</center>
+<br><br>
+Rendering the vertex colors seems to require a plugin "cvColorShader" that ships as an API example (untested), or a Mental Ray node as explained in the Maya docs (search "Render color per vertex"). In Hypershade, select from the menu <b>Create | mental ray Textures | mentalray Vertex Colors</b>. Then from the PolySurfaceShape connect the output color set's name "Color Set[x].Color Name" to the mental ray node's "Cpv Sets" input. Then connect the mentalray Vertex Colors node "Out Color" to the material (Blinn) "Color" input. You may need to use a "Reverse" node to properly pass the Vertex Colors node "Out Alpha" down to the material's "Transparency".
+
+
+
+<h3>6.4 vtkPolyData Lines to Nurbs Curves</h3>
+This imports lines in vtkPolyData into degree 1 nurbs curves
+<pre>
+    # MEL version.
+    importvtk -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-polyslines.vtk";
+
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-polyslines.vtk")
+</pre>
+Each line is created as its own nurbs curve.
+
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="polylinesvtk.png"><img src="polylinesvtk.png"></a>
+</td>
+<td>
+<a href="polylinesmaya.png"><img src="polylinesmaya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkPolyData lines in VTK<br>
+(with colormapped scalars)
+</td>
+<td align=center valign=top>
+Converted to Nurbs Curves
+</td>
+</tr>
+
+</table>
+</center>
+
+
+
+
+
+
+
+<h3>6.5 vtkPolyData Textured Polygons to Mesh</h3>
+This demonstrates import of a polygon mesh surface with UV textured vertices.
+<pre>
+    # MEL version.
+    importvtk -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-polytextured.vtk";
+
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-polytextured.vtk")
+</pre>
+To see the effect, you'll need to add a material, such as Blinn, and apply a texture to the color channel via a 2D Textures "File" render node.  The default uvSet name "map1" is used.  
+
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="polytexturedvtk.png"><img src="polytexturedvtk.png"></a>
+</td>
+<td>
+<a href="polytexturedmaya.png"><img src="polytexturedmaya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkPolyData polygon normals in VTK<br>
+with PNG texture "uvgrid.png"
+</td>
+<td align=center valign=top>
+Converted to Maya Mesh
+</td>
+</tr>
+
+</table>
+</center>
+
+</p>
+
+
+
+
+
+
+
+
+
+<h3>6.6 vtkPolyData with Shared Vertex Normals to Mesh</h3>
+This demonstrates import of a polygon mesh with (shared) vertex normals.
+<pre>
+    # MEL version.
+    importvtk -normals -f "c:/rsz/projects/maya/plugins/importvtk/test/tmp-polynormals.vtk";
+
+    # Python version.
+    from importvtk import importvtk
+    importvtk(f="/net2/rsz/i686/importvtk/dev/importvtk-1.1.0/test/tmp-polynormals.vtk")
+</pre>
+To see the effect, you'll need to select the new Maya object's polySurfaceShape in the Attribute Editor, expand the Mesh Component Display section and Display Normal and use the "vtx" Normal Type.
+
+<center>
+<table cellpadding=10>
+<tr>
+<td>
+<a href="polynormalsvtk.png"><img src="polynormalsvtk.png"></a>
+</td>
+<td>
+<a href="polynormalsmaya.png"><img src="polynormalsmaya.png"></a>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+vtkPolyData normals in VTK
+</td>
+<td align=center valign=top>
+Converted to Maya Mesh
+</td>
+</tr>
+
+</table>
+</center>
+
+</p>
+
+
+
+
+<h3>6.7 Live vtkPolyData Python Object to Mesh</h3>
+This demonstrates import of a polygon mesh with in situ python code.  Enter this code into the Maya Python script editor:
+<pre>
+    import vtk
+    c = vtk.vtkConeSource()
+    c.Update()
+    p = c.GetOutput()
+
+    from importvtk import importvtk
+    # Three ways to import the polydata.
+    importvtk('p')
+    importvtk(r=p.__this__)
+    importvtk(reference=p.__this__)
+</pre>
+
+
+
+
+
+
+<p>
+<hr>
+</p>
+
+<h2>
+<a name="tips">
+7. Tips</a>
+</h2>
+<p>
+<ul>
+
+<li>Automatically load the plugin by putting this command in your userSetup.mel file ($USER/maya/scripts/userSetup.mel on GNU/Linux):
+<pre>
+loadPlugin "importvtk";
+</pre>
+
+</li>
+
+</ul>
+</p>
+
+
+<p>
+<hr>
+</p>
+
+<h2>
+<a name="future">
+8. Future Work</a>
+</h2>
+<p>
+<ul>
+
+<li>Import face or per-face vertex normals for meshes.
+</li>
+<li>Support multiple input scalar arrays and output to multiple maya attributes, for example an array for radius, and another for opacity.
+<pre>
+    importvtk -f "file.vtk" -s "array1" "radiusPP" -s "array2" "opacityPP"
+</pre>
+</li>
+<li>Make plugin a menu item with a file dialog for file import.
+</li>
+
+</ul>
+</p>
+
+
+<p>
+<hr>
+</p>
+
+
+<h2>
+<a name="ack">
+9. Acknowledgements</a>
+</h2>
+<p>
+<ul>
+<li>Red Hill Studios for loaning a copy of Maya and initiating the effort
+to animate scientific datasets.
+</li>
+<li>Geophysical Fluid Dynamics Laboratory (GFDL) for resources to 
+develop on the Linux platform and for their scientific datasets.
+</li>
+<li>Everyone involved with the Visualization Toolkit (VTK) for making
+visualization so accessible and fun.
+</li>
+<li>Microsoft for making their Visual C++ compiler and IDE free.
+</li>
+<li>SourceForge for hosting this project for free and providing an excellent set
+of software engineering tools.
+</li>
+<li>The GNU world at large.
+</li>
+</ul>
+</p>
+
+<p>
+<hr>
+</p>
+Copyright © 2006, 2008 Remik Ziemlinski<br>
+<i>Maya® is a registered trademark of Autodesk.</i>
+</body>
+</html>
